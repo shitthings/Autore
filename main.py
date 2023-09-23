@@ -28,6 +28,7 @@ if st.button("Start Checking"):
                 success_attempts.append(url)
                 st.write("Successfully accessed URL:", url)
                 st.write("Response content:", response_content)
+                print("Successfully accessed URL:", url)  # Print to console
             else:
                 failed_attempts.append(url)
 
