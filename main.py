@@ -3,53 +3,51 @@ import requests
 import random
 import string
 import csv
+from io import BytesIO
 
-# Function to generate random URL and check its status
-def generate_random_url():
-    base_url = "https://autoreg.site/status/"
-    random_string = ''.join(random.choices(string.hexdigits, k=32))
-    url = base_url + random_string
+# Streamlit UI
+st.title("Random URL Checker")
+
+# Function to check URL
+def check_url(url):
     response = requests.get(url)
-    if response.status_code == 200:
-        return url
-    else:
-        return None
+    return response.status_code == 200, response.content
 
-# Streamlit app
-st.title("Random URL Generator")
-
-if st.button("Start Generating"):
+# Main Streamlit code
+if st.button("Start Checking"):
+    base_url = "https://autoreg.site/status/"
     success_attempts = []
     failed_attempts = []
-    attempts_count = 0
+    try:
+        while True:
+            random_string = ''.join(random.choices(string.hexdigits, k=32))
+            url = base_url + random_string
+            is_successful, response_content = check_url(url)
 
-    while True:
-        url = generate_random_url()
-        attempts_count += 1
-        st.text(f"Attempt {attempts_count}: {url}")
+            if is_successful:
+                success_attempts.append(url)
+                st.write("Successfully accessed URL:", url)
+                st.write("Response content:", response_content)
+            else:
+                failed_attempts.append(url)
 
-        if url:
-            success_attempts.append(url)
-        else:
-            failed_attempts.append(url)
+    except KeyboardInterrupt:
+        pass  # Exit loop gracefully on user interrupt
 
-        # Check if the user wants to stop
-        if not st.button("Stop"):
-            break
+    st.write("Successful attempts:", success_attempts)
+    st.write("Failed attempts:", failed_attempts)
 
-# Download successful attempts as CSV
-if st.button("Download Successful Attempts CSV"):
-    if success_attempts:
-        with st.spinner("Generating CSV..."):
-            with open('successful_attempts.csv', 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(["URL"])
-                writer.writerows([[url] for url in success_attempts])
-        st.success("CSV file generated successfully!")
-        st.markdown(f"Download [successful_attempts.csv](successful_attempts.csv)")
+    # Store successful attempts in a CSV file
+    if len(success_attempts) > 0:
+        st.write("Storing successful attempts in a CSV file...")
+        output_csv = BytesIO()
+        csv_writer = csv.writer(output_csv)
+        csv_writer.writerow(["URL"])
+        csv_writer.writerows([[url] for url in success_attempts])
 
-# Display statistics
-st.header("Statistics")
-st.text(f"Total Attempts: {attempts_count}")
-st.text(f"Successful Attempts: {len(success_attempts)}")
-st.text(f"Failed Attempts: {len(failed_attempts)}")
+        st.download_button(
+            "Download Successful Attempts CSV",
+            output_csv.getvalue(),
+            key="successful_attempts_csv",
+            file_name="successful_attempts.csv",
+        )
