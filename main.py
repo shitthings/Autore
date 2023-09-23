@@ -37,16 +37,16 @@ if st.button("Start Generating"):
         if not st.button("Stop"):
             break
 
-# Download successful attempts as CSV
-if st.button("Download Successful Attempts CSV"):
-    if success_attempts:
-        with st.spinner("Generating CSV..."):
-            with open('successful_attempts.csv', 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(["URL"])
-                writer.writerows([[url] for url in success_attempts])
-        st.success("CSV file generated successfully!")
-        st.markdown(f"Download [successful_attempts.csv](successful_attempts.csv)")
+    # Download successful attempts as CSV
+    if st.button("Download Successful Attempts CSV"):
+        if success_attempts:
+            with st.spinner("Generating CSV..."):
+                with open('successful_attempts.csv', 'w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(["URL"])
+                    writer.writerows([[url] for url in success_attempts])
+            st.success("CSV file generated successfully!")
+            st.markdown(f"Download [successful_attempts.csv](successful_attempts.csv)")
 
 # Display statistics
 st.header("Statistics")
