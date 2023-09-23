@@ -3,7 +3,6 @@ import requests
 import random
 import string
 import csv
-import threading
 
 # Function to generate random URL and check its status
 def generate_random_url():
@@ -19,38 +18,24 @@ def generate_random_url():
 # Streamlit app
 st.title("Random URL Generator")
 
-# Create a lock to synchronize access to shared data
-lock = threading.Lock()
+if st.button("Start Generating"):
+    success_attempts = []
+    failed_attempts = []
+    attempts_count = 0
 
-# Lists to store successful and failed attempts
-success_attempts = []
-failed_attempts = []
-
-# Function to run in a separate thread
-def background_thread():
-    global success_attempts
-    global failed_attempts
-
-    while not stop_thread:
+    while True:
         url = generate_random_url()
-        
-        with lock:
-            if url:
-                success_attempts.append(url)
-            else:
-                failed_attempts.append(url)
+        attempts_count += 1
+        st.text(f"Attempt {attempts_count}: {url}")
 
-# Start button and stop button
-start_button = st.button("Start Generating")
-stop_button = st.button("Stop Generating")
+        if url:
+            success_attempts.append(url)
+        else:
+            failed_attempts.append(url)
 
-if start_button and not stop_button:
-    stop_thread = False
-    thread = threading.Thread(target=background_thread)
-    thread.start()
-
-if stop_button:
-    stop_thread = True
+        # Check if the user wants to stop
+        if not st.button("Stop"):
+            break
 
 # Download successful attempts as CSV
 if st.button("Download Successful Attempts CSV"):
@@ -65,6 +50,6 @@ if st.button("Download Successful Attempts CSV"):
 
 # Display statistics
 st.header("Statistics")
-st.text(f"Total Attempts: {len(success_attempts) + len(failed_attempts)}")
+st.text(f"Total Attempts: {attempts_count}")
 st.text(f"Successful Attempts: {len(success_attempts)}")
 st.text(f"Failed Attempts: {len(failed_attempts)}")
