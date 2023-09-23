@@ -13,6 +13,10 @@ def check_url(url):
     response = requests.get(url)
     return response.status_code == 200, response.content
 
+# Define CSS styles for text color
+success_style = "color: green;"
+failure_style = "color: blue;"
+
 # Main Streamlit code
 if st.button("Start Checking"):
     base_url = "https://autoreg.site/status/"
@@ -26,11 +30,11 @@ if st.button("Start Checking"):
 
             if is_successful:
                 success_attempts.append(url)
-                st.write("Successfully accessed URL:", url)
-                st.write("Response content:", response_content)
+                st.write("Successfully accessed URL:", url, unsafe_allow_html=True, key="success_url", help=success_style)
                 print("Successfully accessed URL:", url)  # Print to console
             else:
                 failed_attempts.append(url)
+                st.write("Failed to access URL:", url, unsafe_allow_html=True, key="failure_url", help=failure_style)
 
     except KeyboardInterrupt:
         pass  # Exit loop gracefully on user interrupt
