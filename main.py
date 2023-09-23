@@ -26,7 +26,8 @@ if st.button("Start Generating"):
 
         if is_successful:
             successful_urls.append(url)
-        else:
+
+        if not st.button("Generate Another URL"):
             break
 
 # Display download button for successful URLs as CSV
